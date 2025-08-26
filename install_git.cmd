@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 :: Set variables for easy updating
-set "GIT_VERSION=2.50.1"
+set "GIT_VERSION=2.51.0"
 set "INSTALLER_NAME=Git-%GIT_VERSION%-64-bit.exe"
 set "DOWNLOAD_URL=https://github.com/git-for-windows/git/releases/download/v%GIT_VERSION%.windows.1/%INSTALLER_NAME%"
 
