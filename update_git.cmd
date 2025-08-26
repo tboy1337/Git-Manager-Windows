@@ -17,11 +17,18 @@ if %errorlevel% neq 0 (
 
 echo Updating Git using built-in updater...
 git update-git-for-windows -y
-if %errorlevel% neq 0 (
-    echo Git update failed.  Error code: %errorlevel%
-    timeout /t 5 /nobreak
-    exit /b 3
-)
+set UPDATE_RESULT=%errorlevel%
 
-timeout /t 5 /nobreak
-exit /b 0
+if %UPDATE_RESULT% equ 0 (
+    echo No Git update available. You are already running the latest version.
+    timeout /t 5 /nobreak
+    exit /b 0
+) else if %UPDATE_RESULT% equ 2 (
+    echo Git update was available and has been installed.
+    timeout /t 5 /nobreak
+    exit /b 2
+) else (
+    echo Git update encountered an unexpected error. Error code: %UPDATE_RESULT%
+    timeout /t 5 /nobreak
+    exit /b %UPDATE_RESULT%
+)
