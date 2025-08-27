@@ -95,7 +95,7 @@ if %errorlevel% neq 0 (
     echo Failed to set core.longpaths.  Error code: %errorlevel%
 )
 
-echo Git configuration completed successfully.
+echo Git configuration finished.
 
 timeout /t 5 /nobreak
 exit /b 0
