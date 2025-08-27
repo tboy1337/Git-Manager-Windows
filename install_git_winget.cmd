@@ -23,19 +23,20 @@ if %errorlevel% equ 0 (
 )
 
 echo Installing Git using winget...
-winget install --id Git.Git --silent --accept-package-agreements --accept-source-agreements
+winget install --id Git.Git --silent --accept-package-agreements --accept-source-agreements >nul 2>&1
 if %errorlevel% neq 0 (
     echo Failed to install Git via winget.
     timeout /t 5 /nobreak
     exit /b 4
 )
 
-echo Git installation completed. Configuring Git settings...
+echo Git installation completed successfully.
 
 call :refresh_env
 
 where git >nul 2>&1
 if %errorlevel% neq 0 (
+    echo Unable to configure Git settings.
     echo Git was installed but is not yet available in PATH. You may need to restart your command prompt.
     echo Manual configuration will be required.
     timeout /t 5 /nobreak
@@ -45,56 +46,56 @@ if %errorlevel% neq 0 (
 echo Configuring Git settings...
 
 :: Core settings
-git config --global init.defaultBranch main
+git config --global init.defaultBranch main >nul 2>&1
 if %errorlevel% neq 0 (
     echo Failed to set init.defaultBranch.  Error code: %errorlevel%
 )
 
-git config --global core.eol crlf
+git config --global core.eol crlf >nul 2>&1
 if %errorlevel% neq 0 (
     echo Failed to set core.eol.  Error code: %errorlevel%
 )
 
-git config --global core.autocrlf true
+git config --global core.autocrlf true >nul 2>&1
 if %errorlevel% neq 0 (
     echo Failed to set core.autocrlf.  Error code: %errorlevel%
 )
 
-git config --global core.editor "vim"
+git config --global core.editor "vim" >nul 2>&1
 if %errorlevel% neq 0 (
     echo Failed to set core.editor.  Error code: %errorlevel%
 )
 
 :: Credential manager
-git config --global credential.helper manager
+git config --global credential.helper manager >nul 2>&1
 if %errorlevel% neq 0 (
     echo Failed to set credential.helper.  Error code: %errorlevel%
 )
 
 :: Performance tweaks
-git config --global core.preloadindex true
+git config --global core.preloadindex true >nul 2>&1
 if %errorlevel% neq 0 (
     echo Failed to set core.preloadindex.  Error code: %errorlevel%
 )
 
-git config --global core.fscache true
+git config --global core.fscache true >nul 2>&1
 if %errorlevel% neq 0 (
     echo Failed to set core.fscache.  Error code: %errorlevel%
 )
 
 :: Push behavior
-git config --global pull.rebase false
+git config --global pull.rebase false >nul 2>&1
 if %errorlevel% neq 0 (
     echo Failed to set pull.rebase.  Error code: %errorlevel%
 )
 
 :: Enable long paths on Windows
-git config --global core.longpaths true
+git config --global core.longpaths true >nul 2>&1
 if %errorlevel% neq 0 (
     echo Failed to set core.longpaths.  Error code: %errorlevel%
 )
 
-echo Git installation and configuration completed successfully.
+echo Git configuration completed successfully.
 
 timeout /t 5 /nobreak
 exit /b 0
