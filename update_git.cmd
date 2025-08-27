@@ -16,7 +16,7 @@ if %errorlevel% neq 0 (
 )
 
 echo Updating Git using built-in updater...
-git update-git-for-windows -y
+git update-git-for-windows -y >nul 2>&1
 set UPDATE_RESULT=%errorlevel%
 
 if %UPDATE_RESULT% equ 0 (
