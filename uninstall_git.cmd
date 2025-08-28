@@ -39,7 +39,7 @@ net session >nul 2>&1
 if %errorlevel% neq 0 (
     echo This script requires administrator privileges.
     echo Please right-click and select "Run as administrator".
-    timeout /t 5 /nobreak
+    timeout /t 10 /nobreak
     exit /b 1
 )
 
@@ -75,7 +75,7 @@ if %found_installations% equ 0 (
     echo No Git installations found in standard locations.
     echo This might be because Git is installed in a non-standard location.
     echo If you think Git is still installed, try to uninstall it through Control Panel or locate the installation folder and run the uninstaller manually.
-    timeout /t 5 /nobreak
+    timeout /t 10 /nobreak
     exit /b 2
 )
 
@@ -99,16 +99,16 @@ if %user_locations_count% gtr 0 (
 
 if defined uninstall_error (
     echo One or more Git uninstallations failed.
-    timeout /t 5 /nobreak
+    timeout /t 10 /nobreak
     exit /b 3
 ) else if defined cleanup_error (
     echo Git was uninstalled but some cleanup operations failed.
     echo Please check the listed locations and remove remaining files manually.
-    timeout /t 5 /nobreak
+    timeout /t 10 /nobreak
     exit /b 4
 ) else (
     echo All Git installations were successfully uninstalled and cleaned up.
-    timeout /t 5 /nobreak
+    timeout /t 10 /nobreak
     exit /b 0
 )
 

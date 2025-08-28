@@ -12,28 +12,28 @@ set "DOWNLOAD_TASK=DownloadTask_%RANDOM%_%RANDOM%"
 net session >nul 2>&1
 if %errorlevel% equ 0 (
     echo This script is intended for per-user installation. Please run without administrator privileges.
-    timeout /t 5 /nobreak
+    timeout /t 10 /nobreak
     exit /b 1
 )
 
 where git >nul 2>&1
 if %errorlevel% equ 0 (
     echo Git is already installed and in PATH.
-    timeout /t 5 /nobreak
+    timeout /t 10 /nobreak
     exit /b 2
 )
 
 mkdir "%TEMP_DIR%" >nul 2>nul
 if %errorlevel% neq 0 (
     echo Failed to create temporary Git install directory.
-    timeout /t 5 /nobreak
+    timeout /t 10 /nobreak
     exit /b 3
 )
 
 cd /d "%TEMP_DIR%" >nul 2>nul
 if %errorlevel% neq 0 (
     echo Failed to change to temporary Git install directory.
-    timeout /t 5 /nobreak
+    timeout /t 10 /nobreak
     exit /b 4
 )
 
@@ -157,6 +157,6 @@ if %errorlevel% neq 0 (
 ) else (
     echo Clean up successful.
 )
-timeout /t 5 /nobreak
+timeout /t 10 /nobreak
 
 exit /b 0
