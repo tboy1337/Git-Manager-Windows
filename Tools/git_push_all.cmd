@@ -14,7 +14,7 @@ set /p COMMIT_MSG="Enter commit message: "
 if "%COMMIT_MSG%"=="" (
     echo Commit message cannot be empty.
     timeout /t 5 /nobreak
-    exit /b 1
+    exit /b 2
 )
 
 for /d %%D in (*) do (

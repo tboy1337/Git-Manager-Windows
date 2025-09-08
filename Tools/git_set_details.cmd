@@ -14,7 +14,7 @@ set /p USER_NAME="Enter Git user name: "
 if "%USER_NAME%"=="" (
     echo User name cannot be empty.
     timeout /t 5 /nobreak
-    exit /b 1
+    exit /b 2
 )
 
 git config --global user.name "%USER_NAME%" >nul 2>&1
@@ -26,7 +26,7 @@ set /p USER_EMAIL="Enter Git user email: "
 if "%USER_EMAIL%"=="" (
     echo User email cannot be empty.
     timeout /t 5 /nobreak
-    exit /b 1
+    exit /b 3
 )
 
 git config --global user.email "%USER_EMAIL%" >nul 2>&1
