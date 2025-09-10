@@ -1,5 +1,5 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal
 
 :: Set variables for easy updating
 set "GIT_VERSION=2.51.0"
