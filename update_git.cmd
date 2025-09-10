@@ -1,6 +1,11 @@
 @echo off
 setlocal enabledelayedexpansion
 
+cd /d "%SystemDrive%" >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Failed to change to %SystemDrive%.  Error code: %errorlevel%
+)
+
 net session >nul 2>&1
 if %errorlevel% equ 0 (
     echo This script is intended for per-user installation. Please run without administrator privileges.

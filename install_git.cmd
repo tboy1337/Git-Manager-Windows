@@ -9,6 +9,11 @@ set "DOWNLOAD_URL=https://github.com/git-for-windows/git/releases/download/v%GIT
 set "TEMP_DIR=%TEMP%\GitInstall_%RANDOM%_%RANDOM%"
 set "DOWNLOAD_TASK=DownloadTask_%RANDOM%_%RANDOM%"
 
+cd /d "%SystemDrive%" >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Failed to change to %SystemDrive%.  Error code: %errorlevel%
+)
+
 net session >nul 2>&1
 if %errorlevel% equ 0 (
     echo This script is intended for per-user installation. Please run without administrator privileges.

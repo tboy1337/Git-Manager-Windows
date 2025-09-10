@@ -1,6 +1,11 @@
 @echo off
 setlocal enabledelayedexpansion
 
+cd /d "%SystemDrive%" >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Failed to change to %SystemDrive%.  Error code: %errorlevel%
+)
+
 where git >nul 2>&1
 if %errorlevel% neq 0 (
     echo Git is not installed or in PATH.

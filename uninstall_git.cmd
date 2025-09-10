@@ -11,6 +11,11 @@ set "locations[4]=%LOCALAPPDATA%\Programs\Git"
 set "found_installations=0"
 set "user_locations_count=0"
 
+cd /d "%SystemDrive%" >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Failed to change to %SystemDrive%.  Error code: %errorlevel%
+)
+
 :: Get the original user who invoked this script (when running as admin)
 :: This helps find Git installations in user directories
 for /f "skip=1 tokens=2 delims= " %%u in ('query user ^| findstr "Active"') do (
