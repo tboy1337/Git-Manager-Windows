@@ -111,14 +111,16 @@ exit /b 0
 if not defined PATH set "PATH="
 
 :: Ensure system32 is in PATH (needed for timeout and other system commands)
-echo !PATH! | findstr /i "system32" >nul
-if %errorlevel% neq 0 (
+set "PathUpper=!PATH!"
+call :to_upper PathUpper
+if "!PathUpper!" == "!PathUpper:SYSTEM32=!" (
     set "PATH=!PATH!;%SystemRoot%\system32"
 )
 
 :: Ensure basic Windows directories are in PATH
-echo !PATH! | findstr /i "%SystemRoot%" >nul
-if %errorlevel% neq 0 (
+set "SystemRootUpper=%SystemRoot%"
+call :to_upper SystemRootUpper
+if "!PathUpper!" == "!PathUpper:%SystemRootUpper%=!" (
     set "PATH=!PATH!;%SystemRoot%;%SystemRoot%\System32\Wbem"
 )
 
@@ -126,7 +128,40 @@ if %errorlevel% neq 0 (
 set "UserPath="
 for /f "tokens=2,*" %%A in ('reg query HKCU\Environment /v PATH 2^>nul') do set "UserPath=%%B"
 if defined UserPath (
-    echo !PATH! | findstr /i "!UserPath!" >nul
-    if !errorlevel! neq 0 set "PATH=!PATH!;!UserPath!"
+    set "UserPathUpper=!UserPath!"
+    call :to_upper UserPathUpper
+    if "!PathUpper!" == "!PathUpper:%UserPathUpper%=!" set "PATH=!PATH!;!UserPath!"
 )
+exit /b
+
+:to_upper
+:: Convert string to uppercase for case-insensitive comparison
+set "str=!%1!"
+set "str=!str:a=A!"
+set "str=!str:b=B!"
+set "str=!str:c=C!"
+set "str=!str:d=D!"
+set "str=!str:e=E!"
+set "str=!str:f=F!"
+set "str=!str:g=G!"
+set "str=!str:h=H!"
+set "str=!str:i=I!"
+set "str=!str:j=J!"
+set "str=!str:k=K!"
+set "str=!str:l=L!"
+set "str=!str:m=M!"
+set "str=!str:n=N!"
+set "str=!str:o=O!"
+set "str=!str:p=P!"
+set "str=!str:q=Q!"
+set "str=!str:r=R!"
+set "str=!str:s=S!"
+set "str=!str:t=T!"
+set "str=!str:u=U!"
+set "str=!str:v=V!"
+set "str=!str:w=W!"
+set "str=!str:x=X!"
+set "str=!str:y=Y!"
+set "str=!str:z=Z!"
+set "%1=!str!"
 exit /b
