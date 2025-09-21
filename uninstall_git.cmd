@@ -131,7 +131,7 @@ taskkill /F /IM "puttygen.exe" >nul 2>nul
 taskkill /F /IM "pageant.exe" >nul 2>nul
 
 echo Uninstalling Git from !install_location!...
-start /wait "!current_uninstaller!" /SP- /VERYSILENT /SUPPRESSMSGBOXES /FORCECLOSEAPPLICATIONS
+start /wait !current_uninstaller! /SP- /VERYSILENT /SUPPRESSMSGBOXES /FORCECLOSEAPPLICATIONS
 
 if !errorlevel! neq 0 (
     echo Failed to uninstall Git from !install_location!
