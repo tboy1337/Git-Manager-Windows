@@ -106,62 +106,35 @@ timeout /t 10 /nobreak
 exit /b 0
 
 :refresh_env
-:: Refresh environment variables without requiring a restart
-:: Instead of completely replacing PATH, ensure critical directories are present
-if not defined PATH set "PATH="
+:: Refresh environment variables by reading from registry
+:: This gets both system and user PATH variables that winget modifies
 
-:: Ensure system32 is in PATH (needed for timeout and other system commands)
-set "PathUpper=!PATH!"
-call :to_upper PathUpper
-if "!PathUpper!" == "!PathUpper:SYSTEM32=!" (
-    set "PATH=!PATH!;%SystemRoot%\system32"
+:: Read system PATH from registry
+set "SystemPath="
+for /f "usebackq skip=2 tokens=1,2*" %%A in (`reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v PATH 2^>nul`) do (
+    if /i "%%A"=="PATH" set "SystemPath=%%C"
 )
 
-:: Ensure basic Windows directories are in PATH
-set "SystemRootUpper=%SystemRoot%"
-call :to_upper SystemRootUpper
-if "!PathUpper!" == "!PathUpper:%SystemRootUpper%=!" (
-    set "PATH=!PATH!;%SystemRoot%;%SystemRoot%\System32\Wbem"
-)
-
-:: Read user PATH from registry and append if not already present
+:: Read user PATH from registry
 set "UserPath="
-for /f "tokens=2,*" %%A in ('reg query HKCU\Environment /v PATH 2^>nul') do set "UserPath=%%B"
-if defined UserPath (
-    set "UserPathUpper=!UserPath!"
-    call :to_upper UserPathUpper
-    if "!PathUpper!" == "!PathUpper:%UserPathUpper%=!" set "PATH=!PATH!;!UserPath!"
+for /f "usebackq skip=2 tokens=1,2*" %%A in (`reg query "HKCU\Environment" /v PATH 2^>nul`) do (
+    if /i "%%A"=="PATH" set "UserPath=%%C"
 )
-exit /b
 
-:to_upper
-:: Convert string to uppercase for case-insensitive comparison
-set "str=!%1!"
-set "str=!str:a=A!"
-set "str=!str:b=B!"
-set "str=!str:c=C!"
-set "str=!str:d=D!"
-set "str=!str:e=E!"
-set "str=!str:f=F!"
-set "str=!str:g=G!"
-set "str=!str:h=H!"
-set "str=!str:i=I!"
-set "str=!str:j=J!"
-set "str=!str:k=K!"
-set "str=!str:l=L!"
-set "str=!str:m=M!"
-set "str=!str:n=N!"
-set "str=!str:o=O!"
-set "str=!str:p=P!"
-set "str=!str:q=Q!"
-set "str=!str:r=R!"
-set "str=!str:s=S!"
-set "str=!str:t=T!"
-set "str=!str:u=U!"
-set "str=!str:v=V!"
-set "str=!str:w=W!"
-set "str=!str:x=X!"
-set "str=!str:y=Y!"
-set "str=!str:z=Z!"
-set "%1=!str!"
+:: Combine system and user PATH
+if defined SystemPath (
+    set "PATH=!SystemPath!"
+) else (
+    set "PATH=%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem"
+)
+
+if defined UserPath (
+    set "PATH=!PATH!;!UserPath!"
+)
+
+:: Ensure critical system directories are present (fallback)
+if not defined PATH (
+    set "PATH=%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem"
+)
+
 exit /b
