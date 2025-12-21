@@ -27,11 +27,11 @@ set UPDATE_RESULT=%errorlevel%
 if %UPDATE_RESULT% equ 0 (
     echo No Git update available. You are already running the latest version.
     timeout /t 10 /nobreak
-    exit /b 0
+    exit /b %UPDATE_RESULT%
 ) else if %UPDATE_RESULT% equ 2 (
     echo Git update was available and has been installed.
     timeout /t 10 /nobreak
-    exit /b 2
+    exit /b %UPDATE_RESULT%
 ) else (
     echo Git update encountered an unexpected error. Error code: %UPDATE_RESULT%
     timeout /t 10 /nobreak
