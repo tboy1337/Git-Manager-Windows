@@ -88,7 +88,7 @@ if %errorlevel% neq 0 (
     echo Failed to set core.fscache.  Error code: %errorlevel%
 )
 
-:: Push behavior
+:: Pull behavior
 git config --global pull.rebase false >nul 2>&1
 if %errorlevel% neq 0 (
     echo Failed to set pull.rebase.  Error code: %errorlevel%
