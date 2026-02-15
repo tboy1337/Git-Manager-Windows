@@ -137,4 +137,8 @@ if not defined PATH (
     set "PATH=%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem"
 )
 
+:: Force expansion of environment variables in PATH
+:: This is necessary because registry values contain unexpanded variables like %SystemRoot%
+call set "PATH=%PATH%"
+
 exit /b
