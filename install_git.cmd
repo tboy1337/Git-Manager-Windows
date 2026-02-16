@@ -146,7 +146,9 @@ if %errorlevel% neq 0 (
 )
 
 echo Git installation completed successfully.
-goto :gitcleanup
+call :gitcleanup
+endlocal
+exit /b 0
 
 :giterror
 echo An error occurred during the Git installation process.
@@ -168,5 +170,4 @@ if %errorlevel% neq 0 (
     echo Clean up successful.
 )
 timeout /t 10 /nobreak
-endlocal
-exit /b 0
+goto :eof

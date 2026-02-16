@@ -147,4 +147,4 @@ if not defined PATH (
 :: This is necessary because registry values contain unexpanded variables like %SystemRoot%
 call set "PATH=%PATH%"
 
-exit /b
+goto :eof
