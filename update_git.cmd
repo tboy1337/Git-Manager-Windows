@@ -3,23 +3,23 @@ setlocal
 
 cd /d "%SystemDrive%" >nul 2>&1
 if %errorlevel% neq 0 (
-    echo Failed to change to %SystemDrive%.  Error code: %errorlevel%
+    echo Failed to change to %SystemDrive%.  Error code: 12
 )
 
 net session >nul 2>&1
 if %errorlevel% equ 0 (
-    echo This script is intended for per-user installation. Please run without administrator privileges.
+    echo This script is intended for per-user installation. Please run without administrator privileges.  Error code: 10
     timeout /t 10 /nobreak
     endlocal
-    exit /b 3
+    exit /b 10
 )
 
 where git >nul 2>&1
 if %errorlevel% neq 0 (
-    echo Git is not installed or in PATH.
+    echo Git is not installed or in PATH.  Error code: 11
     timeout /t 10 /nobreak
     endlocal
-    exit /b 4
+    exit /b 11
 )
 
 echo Updating Git using built-in updater...
@@ -37,7 +37,7 @@ if %UPDATE_RESULT% equ 0 (
     endlocal
     exit /b %UPDATE_RESULT%
 ) else (
-    echo Git update encountered an unexpected error. Error code: %UPDATE_RESULT%
+    echo Git update encountered an unexpected error.  Error code: %UPDATE_RESULT%
     timeout /t 10 /nobreak
     endlocal
     exit /b %UPDATE_RESULT%
