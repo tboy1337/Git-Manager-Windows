@@ -18,6 +18,7 @@ net session >nul 2>&1
 if %errorlevel% equ 0 (
     echo This script is intended for per-user installation. Please run without administrator privileges.
     timeout /t 10 /nobreak
+    endlocal
     exit /b 1
 )
 
@@ -25,6 +26,7 @@ where git >nul 2>&1
 if %errorlevel% equ 0 (
     echo Git is already installed and in PATH.
     timeout /t 10 /nobreak
+    endlocal
     exit /b 2
 )
 
@@ -32,6 +34,7 @@ mkdir "%TEMP_DIR%" >nul 2>nul
 if %errorlevel% neq 0 (
     echo Failed to create temporary Git install directory.
     timeout /t 10 /nobreak
+    endlocal
     exit /b 3
 )
 
@@ -39,6 +42,7 @@ cd /d "%TEMP_DIR%" >nul 2>nul
 if %errorlevel% neq 0 (
     echo Failed to change to temporary Git install directory.
     timeout /t 10 /nobreak
+    endlocal
     exit /b 4
 )
 
@@ -147,6 +151,7 @@ goto :gitcleanup
 :giterror
 echo An error occurred during the Git installation process.
 call :gitcleanup
+endlocal
 exit /b 5
 
 :gitcleanup
@@ -163,5 +168,5 @@ if %errorlevel% neq 0 (
     echo Clean up successful.
 )
 timeout /t 10 /nobreak
-
+endlocal
 exit /b 0
