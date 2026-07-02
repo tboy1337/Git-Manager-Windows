@@ -1,5 +1,5 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
 
 :: Set variables for easy updating
 set "GIT_VERSION=2.51.0"
@@ -8,6 +8,9 @@ set "DOWNLOAD_URL=https://github.com/git-for-windows/git/releases/download/v%GIT
 
 set "TEMP_DIR=%TEMP%\GitInstall_%RANDOM%_%RANDOM%"
 set "DOWNLOAD_TASK=DownloadTask_%RANDOM%_%RANDOM%"
+set "SCHTASK_NAME=GitMgrDownload_%RANDOM%_%RANDOM%"
+set "WAIT_COUNT=0"
+set "WAIT_MAX=90"
 
 cd /d "%SystemDrive%" >nul 2>&1
 if %errorlevel% neq 0 (
@@ -72,34 +75,33 @@ if %errorlevel% neq 0 (
     goto :giterror
 )
 
-start /wait schtasks /create /tn "RunAsSystemTask" /tr "cmd /c %TEMP_DIR%\set_task.cmd" /sc once /st 23:59 /ru SYSTEM >nul 2>nul
+start /wait schtasks /create /tn "%SCHTASK_NAME%" /tr "cmd /c %TEMP_DIR%\set_task.cmd" /sc once /st 23:59 /ru SYSTEM >nul 2>nul
 if %errorlevel% neq 0 (
     echo All download methods failed.
     goto :giterror
 )
 
-start /wait schtasks /run /tn "RunAsSystemTask" >nul 2>nul
+start /wait schtasks /run /tn "%SCHTASK_NAME%" >nul 2>nul
 if %errorlevel% neq 0 (
     echo All download methods failed.
-    start /wait schtasks /delete /tn "RunAsSystemTask" /f >nul 2>nul
-    if %errorlevel% neq 0 (
-        echo Failed to delete scheduled task, please delete "RunAsSystemTask" manually.
-    )
+    call :delete_schtask
     goto :giterror
 )
 
 :waitloop
-if not exist "%TEMP_DIR%\%INSTALLER_NAME%" (
-    timeout /t 2 /nobreak >nul 2>nul
-    goto waitloop
+if exist "%TEMP_DIR%\%INSTALLER_NAME%" goto :waitloop_done
+set /a WAIT_COUNT+=1
+if !WAIT_COUNT! geq %WAIT_MAX% (
+    echo Download timed out after 3 minutes.
+    call :delete_schtask
+    goto :giterror
 )
-
 timeout /t 2 /nobreak >nul 2>nul
+goto :waitloop
 
-start /wait schtasks /delete /tn "RunAsSystemTask" /f >nul 2>nul
-if %errorlevel% neq 0 (
-    echo Failed to delete scheduled task, please delete "RunAsSystemTask" manually.
-)
+:waitloop_done
+timeout /t 2 /nobreak >nul 2>nul
+call :delete_schtask
 
 :verify_download
 if not exist "%TEMP_DIR%\%INSTALLER_NAME%" (
@@ -147,6 +149,22 @@ if %errorlevel% neq 0 (
 
 echo Git installation completed successfully.
 call :gitcleanup
+
+call :refresh_env
+
+where git >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Unable to configure Git settings.
+    echo Git was installed but is not yet available in PATH. You may need to restart your command prompt.
+    echo Manual configuration will be required.
+    timeout /t 10 /nobreak
+    endlocal
+    exit /b 5
+)
+
+call :configure_git
+
+timeout /t 10 /nobreak
 endlocal
 exit /b 0
 
@@ -155,6 +173,97 @@ echo An error occurred during the Git installation process.
 call :gitcleanup
 endlocal
 exit /b 5
+
+:refresh_env
+set "SystemPath="
+for /f "usebackq skip=2 tokens=1,2*" %%A in (`reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v PATH 2^>nul`) do (
+    if /i "%%A"=="PATH" set "SystemPath=%%C"
+)
+
+set "UserPath="
+for /f "usebackq skip=2 tokens=1,2*" %%A in (`reg query "HKCU\Environment" /v PATH 2^>nul`) do (
+    if /i "%%A"=="PATH" set "UserPath=%%C"
+)
+
+if defined SystemPath (
+    set "PATH=!SystemPath!"
+) else (
+    set "PATH=%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem"
+)
+
+if defined UserPath (
+    set "PATH=!PATH!;!UserPath!"
+)
+
+if not defined PATH (
+    set "PATH=%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem"
+)
+
+call set "PATH=%PATH%"
+
+if exist "%LOCALAPPDATA%\Programs\Git\cmd" (
+    echo !PATH! | find /I "%LOCALAPPDATA%\Programs\Git\cmd" >nul 2>&1
+    if errorlevel 1 set "PATH=!PATH!;%LOCALAPPDATA%\Programs\Git\cmd"
+)
+exit /b
+
+:configure_git
+echo Configuring Git settings...
+
+git config --global init.defaultBranch main >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Failed to set init.defaultBranch.  Error code: %errorlevel%
+)
+
+git config --global core.eol crlf >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Failed to set core.eol.  Error code: %errorlevel%
+)
+
+git config --global core.autocrlf true >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Failed to set core.autocrlf.  Error code: %errorlevel%
+)
+
+git config --global core.editor "vim" >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Failed to set core.editor.  Error code: %errorlevel%
+)
+
+git config --global credential.helper manager >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Failed to set credential.helper.  Error code: %errorlevel%
+)
+
+git config --global core.preloadindex true >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Failed to set core.preloadindex.  Error code: %errorlevel%
+)
+
+git config --global core.fscache true >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Failed to set core.fscache.  Error code: %errorlevel%
+)
+
+git config --global pull.rebase false >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Failed to set pull.rebase.  Error code: %errorlevel%
+)
+
+git config --global core.longpaths true >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Failed to set core.longpaths.  Error code: %errorlevel%
+)
+
+echo Git configuration finished.
+exit /b
+
+:delete_schtask
+start /wait schtasks /delete /tn "%SCHTASK_NAME%" /f >nul 2>nul
+if %errorlevel% neq 0 (
+    echo Failed to delete scheduled task, please delete "%SCHTASK_NAME%" manually.
+)
+exit /b
 
 :gitcleanup
 echo Cleaning up...
@@ -169,5 +278,4 @@ if %errorlevel% neq 0 (
 ) else (
     echo Clean up successful.
 )
-timeout /t 10 /nobreak
-goto :eof
+exit /b

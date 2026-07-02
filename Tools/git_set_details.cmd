@@ -1,11 +1,6 @@
 @echo off
 setlocal
 
-cd /d "%SystemDrive%" >nul 2>&1
-if %errorlevel% neq 0 (
-    echo Failed to change to %SystemDrive%.  Error code: %errorlevel%
-)
-
 where git >nul 2>&1
 if %errorlevel% neq 0 (
     echo Git is not installed or in PATH.
@@ -14,6 +9,8 @@ if %errorlevel% neq 0 (
 )
 
 echo Setting global Git user details...
+
+set "CONFIG_ERROR=0"
 
 set /p USER_NAME="Enter Git user name: "
 if "%USER_NAME%"=="" (
@@ -25,6 +22,7 @@ if "%USER_NAME%"=="" (
 git config --global user.name "%USER_NAME%" >nul 2>&1
 if %errorlevel% neq 0 (
     echo Failed to set global Git user name.  Error code: %errorlevel%
+    set "CONFIG_ERROR=1"
 )
 
 set /p USER_EMAIL="Enter Git user email: "
@@ -37,8 +35,13 @@ if "%USER_EMAIL%"=="" (
 git config --global user.email "%USER_EMAIL%" >nul 2>&1
 if %errorlevel% neq 0 (
     echo Failed to set global Git user email.  Error code: %errorlevel%
+    set "CONFIG_ERROR=1"
 )
 
 timeout /t 5 /nobreak
+if %CONFIG_ERROR% equ 1 (
+    endlocal
+    exit /b 4
+)
 endlocal
 exit /b 0

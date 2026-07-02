@@ -5,7 +5,7 @@
 
 **Supercharge your Git experience on Windows with these handy scripts!** Whether you're setting up Git for the first time, keeping it fresh, or saying goodbye, we've got you covered. No more fumbling with installers – just run a script and boom! 💥
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: CRL](https://img.shields.io/badge/License-CRL-blue.svg)](LICENSE.md)
 [![Windows](https://img.shields.io/badge/Platform-Windows-blue.svg)]()
 
 ## 🌟 Features
@@ -39,7 +39,7 @@ install_git_winget.cmd
 ```cmd
 install_git.cmd
 ```
-- Downloads the latest Git installer (v2.50.1 – update the script for newer versions).
+- Downloads the latest Git installer (v2.51.0 – see `GIT_VERSION` in `install_git.cmd` for the pinned version).
 - Installs to `%LOCALAPPDATA%\Programs\Git` with predefined options (Vim as editor, OpenSSH, etc.).
 - Handles downloads via curl, PowerShell, or bitsadmin.
 
@@ -99,14 +99,14 @@ Tools\git_set_details.cmd
 
 #### Line Ending Configuration
 ```cmd
-Tools\set_git_crlf.cmd
+Tools\git_set_crlf.cmd
 ```
 - Sets Git to use CRLF (Windows-style) line endings.
 - Configures `core.autocrlf=true` and `core.eol=crlf`.
 - Recommended for Windows-only development environments.
 
 ```cmd
-Tools\set_git_lf.cmd
+Tools\git_set_lf.cmd
 ```
 - Sets Git to use LF (Unix/Linux-style) line endings.
 - Configures `core.autocrlf=false` and `core.eol=lf`.

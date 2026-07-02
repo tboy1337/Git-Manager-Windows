@@ -53,9 +53,48 @@ if %errorlevel% neq 0 (
     exit /b 5
 )
 
+call :configure_git
+
+timeout /t 10 /nobreak
+endlocal
+exit /b 0
+
+:refresh_env
+set "SystemPath="
+for /f "usebackq skip=2 tokens=1,2*" %%A in (`reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v PATH 2^>nul`) do (
+    if /i "%%A"=="PATH" set "SystemPath=%%C"
+)
+
+set "UserPath="
+for /f "usebackq skip=2 tokens=1,2*" %%A in (`reg query "HKCU\Environment" /v PATH 2^>nul`) do (
+    if /i "%%A"=="PATH" set "UserPath=%%C"
+)
+
+if defined SystemPath (
+    set "PATH=!SystemPath!"
+) else (
+    set "PATH=%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem"
+)
+
+if defined UserPath (
+    set "PATH=!PATH!;!UserPath!"
+)
+
+if not defined PATH (
+    set "PATH=%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem"
+)
+
+call set "PATH=%PATH%"
+
+if exist "%LOCALAPPDATA%\Programs\Git\cmd" (
+    echo !PATH! | find /I "%LOCALAPPDATA%\Programs\Git\cmd" >nul 2>&1
+    if errorlevel 1 set "PATH=!PATH!;%LOCALAPPDATA%\Programs\Git\cmd"
+)
+exit /b
+
+:configure_git
 echo Configuring Git settings...
 
-:: Core settings
 git config --global init.defaultBranch main >nul 2>&1
 if %errorlevel% neq 0 (
     echo Failed to set init.defaultBranch.  Error code: %errorlevel%
@@ -76,13 +115,11 @@ if %errorlevel% neq 0 (
     echo Failed to set core.editor.  Error code: %errorlevel%
 )
 
-:: Credential manager
 git config --global credential.helper manager >nul 2>&1
 if %errorlevel% neq 0 (
     echo Failed to set credential.helper.  Error code: %errorlevel%
 )
 
-:: Performance tweaks
 git config --global core.preloadindex true >nul 2>&1
 if %errorlevel% neq 0 (
     echo Failed to set core.preloadindex.  Error code: %errorlevel%
@@ -93,58 +130,15 @@ if %errorlevel% neq 0 (
     echo Failed to set core.fscache.  Error code: %errorlevel%
 )
 
-:: Pull behavior
 git config --global pull.rebase false >nul 2>&1
 if %errorlevel% neq 0 (
     echo Failed to set pull.rebase.  Error code: %errorlevel%
 )
 
-:: Enable long paths on Windows
 git config --global core.longpaths true >nul 2>&1
 if %errorlevel% neq 0 (
     echo Failed to set core.longpaths.  Error code: %errorlevel%
 )
 
 echo Git configuration finished.
-
-timeout /t 10 /nobreak
-endlocal
-exit /b 0
-
-:refresh_env
-:: Refresh environment variables by reading from registry
-:: This gets both system and user PATH variables that winget modifies
-
-:: Read system PATH from registry
-set "SystemPath="
-for /f "usebackq skip=2 tokens=1,2*" %%A in (`reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v PATH 2^>nul`) do (
-    if /i "%%A"=="PATH" set "SystemPath=%%C"
-)
-
-:: Read user PATH from registry
-set "UserPath="
-for /f "usebackq skip=2 tokens=1,2*" %%A in (`reg query "HKCU\Environment" /v PATH 2^>nul`) do (
-    if /i "%%A"=="PATH" set "UserPath=%%C"
-)
-
-:: Combine system and user PATH
-if defined SystemPath (
-    set "PATH=!SystemPath!"
-) else (
-    set "PATH=%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem"
-)
-
-if defined UserPath (
-    set "PATH=!PATH!;!UserPath!"
-)
-
-:: Ensure critical system directories are present (fallback)
-if not defined PATH (
-    set "PATH=%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem"
-)
-
-:: Force expansion of environment variables in PATH
-:: This is necessary because registry values contain unexpanded variables like %SystemRoot%
-call set "PATH=%PATH%"
-
-goto :eof
+exit /b
