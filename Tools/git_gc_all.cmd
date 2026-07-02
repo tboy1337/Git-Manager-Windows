@@ -20,7 +20,7 @@ for /d %%D in (*) do (
     if exist "%%D\.git" (
         echo Found Git repository in %%D, running git gc...
         pushd "%%D"
-        git gc --aggressive
+        git gc
         popd
         echo Finished %%D
         echo.
